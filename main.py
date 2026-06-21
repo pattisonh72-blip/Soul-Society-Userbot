@@ -34,6 +34,14 @@ script_path = os.path.dirname(os.path.realpath(__file__))
 if script_path != os.getcwd():
     os.chdir(script_path)
 
+if gitrepo is not None:
+    try:
+        git_hash = gitrepo.head.commit.hexsha[:7]
+    except Exception:
+        git_hash = "unknown"
+else:
+    git_hash = "unknown"
+
 app = Client(
     "my_account",
     api_id=config.api_id,
@@ -41,7 +49,7 @@ app = Client(
     hide_password=True,
     workdir=script_path,
     app_version=userbot_version,
-    device_model=f"Dragon-Userbot @ {gitrepo.head.commit.hexsha[:7]}",
+    device_model=f"Dragon-Userbot @ {git_hash}",
     system_version=platform.version() + " " + platform.machine(),
     sleep_threshold=30,
     test_mode=config.test_server,
