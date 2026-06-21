@@ -1,11 +1,10 @@
-import os
-import asyncio
 from pyrogram import Client, filters
 from pyrogram.types import Message
 from pyrogram.errors import FloodWait
-# Dragon Userbot ke standard imports jo aapne screenshot mein dikhaye
+import os
+import asyncio
+
 from utils.misc import modules_help, prefix
-from utils.scripts import format_exc
 
 TXT_FILE = "database/oneword.txt"
 active_tasks = set()
@@ -45,9 +44,8 @@ async def activate_loop(client: Client, message: Message):
             
         except FloodWait as e:
             await asyncio.sleep(e.value + 1)
-        except Exception as e:
-            # Agar koi unexpected error aaye toh console log mein dikhega
-            print(format_exc(e))
+        except Exception:
+            pass
 
     if task_id in active_tasks:
         active_tasks.remove(task_id)
@@ -58,34 +56,7 @@ async def stop_loop(client: Client, message: Message):
     active_tasks.clear() 
     await message.delete()
 
-# Help dictionary jismein khali ya minimal commands hain jaisa aapko chahiye tha
 modules_help["oneword"] = {
     "ow": "Sequence",
     "owstop": "Stop"
-}
-            if reply_to_id:
-                await client.send_message(message.chat.id, item, reply_to_message_id=reply_to_id)
-            else:
-                await client.send_message(message.chat.id, item)
-            
-            await asyncio.sleep(0.15)
-            
-        except FloodWait as e:
-            await asyncio.sleep(e.value + 1)
-        except Exception:
-            pass
-
-    if task_id in active_tasks:
-        active_tasks.remove(task_id)
-
-@Client.on_message(filters.command("owstop", prefix) & filters.me)
-async def stop_loop(client, message):
-    global active_tasks
-    active_tasks.clear() 
-    await message.delete()
-
-# Dragon Userbot ka help menu structure
-modules_help["oneword"] = {
-    "ow": "Run sequence",
-    "owstop": "Stop sequence"
 }
