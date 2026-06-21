@@ -37,18 +37,34 @@ python_version = f"{version_info[0]}.{version_info[1]}.{version_info[2]}"
 
 prefix = db.get("core.main", "prefix", ".")
 
-try:
-    gitrepo = git.Repo(".")
-except git.exc.InvalidGitRepositoryError:
-    repo = git.Repo.init()
-    origin = repo.create_remote(
-        "origin", "https://github.com/Dragon-Userbot/Dragon-Userbot"
-    )
-    origin.fetch()
-    repo.create_head("master", origin.refs.master)
-    repo.heads.master.set_tracking_branch(origin.refs.master)
-    repo.heads.master.checkout(True)
-    gitrepo = git.Repo(".")
+gitrepo = None
+userbot_version = "4.0.0"
 
-commits_since_tag = list(gitrepo.iter_commits(f"{gitrepo.tags[-1].name}..HEAD"))
-userbot_version = f"4.0.{len(commits_since_tag)}"
+try:
+    try:
+        gitrepo = git.Repo(".")
+    except git.exc.InvalidGitRepositoryError:
+        repo = git.Repo.init()
+        origin = repo.create_remote(
+            "origin", "https://github.com/Dragon-Userbot/Dragon-Userbot"
+        )
+        origin.fetch()
+        repo.create_head("master", origin.refs.master)
+        repo.heads.master.set_tracking_branch(origin.refs.master)
+        repo.heads.master.checkout(True)
+        gitrepo = git.Repo(".")
+
+    if gitrepo.tags:
+        commits_since_tag = list(
+            gitrepo.iter_commits(f"{gitrepo.tags[-1].name}..HEAD")
+        )
+        userbot_version = f"4.0.{len(commits_since_tag)}"
+    else:
+        commits_since_tag = list(gitrepo.iter_commits("HEAD"))
+        userbot_version = f"4.0.{len(commits_since_tag)}"
+except Exception:
+    # git executable missing or any other git-related failure (e.g. on
+    # hosts like Railway/Render where git isn't installed in the
+    # container). Fall back to a default version instead of crashing.
+    gitrepo = None
+    userbot_version = "4.0.0"
